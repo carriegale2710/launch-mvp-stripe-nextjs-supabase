@@ -22,6 +22,71 @@ interface StoredSubscriptionData {
   customer: string;
 }
 
+interface SubscriptionLogData {
+  id?: string;
+  stripeSubscriptionId?: string;
+  stripeCustomerId?: string;
+  status?: string;
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodEnd?: number | string | null;
+}
+
+function getStripeSubscriptionLogData(subscription: Stripe.Subscription): SubscriptionLogData {
+  return {
+    id: subscription.id,
+    stripeCustomerId:
+      typeof subscription.customer === 'string'
+        ? subscription.customer
+        : subscription.customer?.id,
+    status: subscription.status,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    currentPeriodEnd: subscription.current_period_end,
+  };
+}
+
+function getStoredSubscriptionLogData(subscription: Record<string, unknown>): SubscriptionLogData {
+  return {
+    id: typeof subscription.id === 'string' ? subscription.id : undefined,
+    stripeSubscriptionId:
+      typeof subscription.stripe_subscription_id === 'string'
+        ? subscription.stripe_subscription_id
+        : undefined,
+    stripeCustomerId:
+      typeof subscription.stripe_customer_id === 'string'
+        ? subscription.stripe_customer_id
+        : undefined,
+    status: typeof subscription.status === 'string' ? subscription.status : undefined,
+    cancelAtPeriodEnd:
+      typeof subscription.cancel_at_period_end === 'boolean'
+        ? subscription.cancel_at_period_end
+        : undefined,
+    currentPeriodEnd:
+      typeof subscription.current_period_end === 'string' ||
+      typeof subscription.current_period_end === 'number'
+        ? subscription.current_period_end
+        : null,
+  };
+}
+
+function getErrorLogData(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+    };
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const message =
+      'message' in error && typeof error.message === 'string' ? error.message : 'Unknown error';
+    const name = 'name' in error && typeof error.name === 'string' ? error.name : 'Error';
+
+    return { name, message };
+  }
+
+  return { message: String(error) };
+}
+
 // Store both checkout sessions and subscriptions temporarily
 const checkoutSessionMap = new Map<string, StoredSessionData>();
 const pendingSubscriptions = new Map<string, StoredSubscriptionData>();
@@ -134,9 +199,12 @@ export const POST = withCors(async function POST(request: NextRequest) {
             session.client_reference_id!,
             session.customer as string
           );
-          logWebhookEvent('Successfully created subscription', subscription);
+          logWebhookEvent(
+            'Successfully created subscription',
+            getStoredSubscriptionLogData(subscription)
+          );
         } catch (error) {
-          logWebhookEvent('Failed to create subscription', error);
+          logWebhookEvent('Failed to create subscription', getErrorLogData(error));
           throw error;
         }
         break;
@@ -220,7 +288,7 @@ export const POST = withCors(async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (err) {
-    logWebhookEvent('Webhook error', err);
+    logWebhookEvent('Webhook error', getErrorLogData(err));
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 400 }
@@ -234,7 +302,7 @@ async function createSubscription(subscriptionId: string, userId: string, custom
 
   try {
     const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
-    logWebhookEvent('Retrieved Stripe subscription', stripeSubscription);
+    logWebhookEvent('Retrieved Stripe subscription', getStripeSubscriptionLogData(stripeSubscription));
 
     const { data: existingData, error: checkError } = await supabaseAdmin
       .from('subscriptions')
@@ -243,11 +311,11 @@ async function createSubscription(subscriptionId: string, userId: string, custom
       .single();
 
     if (checkError) {
-      logWebhookEvent('Error checking existing subscription', checkError);
+      logWebhookEvent('Error checking existing subscription', getErrorLogData(checkError));
     }
 
     if (existingData) {
-      logWebhookEvent('Found existing subscription', existingData);
+      logWebhookEvent('Found existing subscription', getStoredSubscriptionLogData(existingData));
       const { error: updateError } = await supabaseAdmin
         .from('subscriptions')
         .update({
@@ -261,7 +329,7 @@ async function createSubscription(subscriptionId: string, userId: string, custom
         .single();
 
       if (updateError) {
-        logWebhookEvent('Error updating existing subscription', updateError);
+        logWebhookEvent('Error updating existing subscription', getErrorLogData(updateError));
         throw updateError;
       }
       return existingData;
@@ -285,14 +353,14 @@ async function createSubscription(subscriptionId: string, userId: string, custom
       .single();
 
     if (insertError) {
-      logWebhookEvent('Error inserting new subscription', insertError);
+      logWebhookEvent('Error inserting new subscription', getErrorLogData(insertError));
       throw insertError;
     }
 
-    logWebhookEvent('Successfully created new subscription', data);
+    logWebhookEvent('Successfully created new subscription', getStoredSubscriptionLogData(data));
     return data;
   } catch (error) {
-    logWebhookEvent('Error in createSubscription', error);
+    logWebhookEvent('Error in createSubscription', getErrorLogData(error));
     throw error;
   }
 } 

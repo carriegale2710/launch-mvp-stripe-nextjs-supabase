@@ -42,7 +42,7 @@ A production-ready Next.js template featuring authentication, dark mode support,
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 20.9+
 - npm or yarn
 - A Supabase account
 - A Stripe account
