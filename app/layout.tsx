@@ -15,7 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans">
+      <body
+        className="antialiased"
+        style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
+      >
         <Analytics mode="auto" />
         {/* <PostHogErrorBoundary>
           <PostHogProvider> */}

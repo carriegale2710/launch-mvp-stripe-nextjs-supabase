@@ -43,7 +43,7 @@ The current review baseline focuses on:
 
 - Stripe webhook signature verification in the webhook route
 - Row-level security policies in the Supabase schema
-- Security headers in `next.config.ts`
+- Security headers in `next.config.js`
 
 ## Hardening applied in this baseline
 
