@@ -41,6 +41,17 @@ export async function getAuthenticatedUser(options?: GetAuthenticatedUserOptions
   }
 
   const requestHeaders = await headers();
+  const requestOrigin = requestHeaders.get('origin');
+  const allowedOrigins = [
+    process.env.NEXT_PUBLIC_APP_URL,
+    'http://localhost:3000',
+    'http://localhost:8000',
+  ].filter((value): value is string => Boolean(value));
+
+  if (!requestOrigin || !allowedOrigins.includes(requestOrigin)) {
+    return null;
+  }
+
   const authToken = requestHeaders.get('authorization')?.replace(/^Bearer\s+/i, '') || undefined;
 
   if (!authToken) {
