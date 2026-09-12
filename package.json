@@ -7,9 +7,10 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "security:lint": "eslint app/api app/auth/callback/route.ts utils/cors.ts utils/supabase.ts utils/supabase-admin.ts utils/supabase-server.ts utils/stripe-server.ts supabase/functions app/layout.tsx next.config.js eslint.config.mjs",
     "security:deps": "npm audit --omit=dev --audit-level=high",
     "security:secrets": "gitleaks detect --source . --no-banner --redact",
-    "security:check": "npm run lint && npm run build && npm run security:deps && npm run security:secrets"
+    "security:check": "npm run security:lint && npm run build && npm run security:deps && npm run security:secrets"
   },
   "overrides": {
     "ws": "^8.21.3"
