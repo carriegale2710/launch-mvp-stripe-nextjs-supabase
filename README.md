@@ -3,7 +3,7 @@
 A production-ready Next.js template featuring authentication, dark mode support, Stripe integration, **automated email workflows with Resend**, and a clean, modern UI. Built with TypeScript and Tailwind CSS.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![Tailwind](https://img.shields.io/badge/Tailwind-3.0-38B2AC)
 
