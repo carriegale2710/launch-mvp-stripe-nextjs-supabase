@@ -24,6 +24,7 @@
     "@supabase/supabase-js": "^2.47.10",
     "@types/stripe": "^8.0.416",
     "@vercel/analytics": "^1.4.1",
+    "axios": "^1.18.0",
     "framer-motion": "^12.4.3",
     "lodash": "^4.18.1",
     "lucide-react": "^0.475.0",
