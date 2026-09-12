@@ -48,7 +48,7 @@ export async function getAuthenticatedUser(options?: GetAuthenticatedUserOptions
     'http://localhost:8000',
   ].filter((value): value is string => Boolean(value));
 
-  if (!requestOrigin || !allowedOrigins.includes(requestOrigin)) {
+  if (requestOrigin && !allowedOrigins.includes(requestOrigin)) {
     return null;
   }
 
