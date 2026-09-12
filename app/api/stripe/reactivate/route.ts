@@ -29,7 +29,11 @@ export const POST = withCors(async function POST(request: NextRequest) {
       .eq('stripe_subscription_id', subscriptionId)
       .single();
 
-    if (subscriptionLookupError || !storedSubscription) {
+    if (subscriptionLookupError && subscriptionLookupError.code !== 'PGRST116') {
+      throw subscriptionLookupError;
+    }
+
+    if (!storedSubscription) {
       return NextResponse.json(
         { error: 'Subscription not found' },
         { status: 404 }

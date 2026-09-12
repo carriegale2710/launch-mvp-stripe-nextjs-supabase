@@ -30,6 +30,10 @@ interface SendEmailRequest {
   data: Record<string, unknown>;
 }
 
+function isEmailData(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
  * POST /api/email/send
  *
@@ -58,12 +62,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body.
-    const body: SendEmailRequest = await request.json();
+    const body: Partial<SendEmailRequest> = await request.json();
     const { type, userId, data } = body;
     let { to } = body;
 
     // Validate required fields - need either 'to' or 'userId'
-    if (!type || !ALLOWED_EMAIL_TYPES.includes(type) || (!to && !userId)) {
+    if (
+      !type ||
+      !ALLOWED_EMAIL_TYPES.includes(type) ||
+      (!to && !userId) ||
+      !isEmailData(data)
+    ) {
       return NextResponse.json(
         { error: 'Missing or invalid required fields: type, and either to or userId' },
         { status: 400 }

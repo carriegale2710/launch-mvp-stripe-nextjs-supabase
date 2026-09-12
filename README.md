@@ -36,6 +36,7 @@ A production-ready Next.js template featuring authentication, dark mode support,
 - Automated repository security checks run in GitHub Actions for pull requests, pushes, and on a weekly schedule.
 - The workflow covers dependency review, `npm audit`, CodeQL static analysis, and secret scanning.
 - Maintainers can run the local baseline with `npm run security:check` after installing `gitleaks`.
+- The current baseline is validated against the upgraded Next.js 16 / React 19 stack with `npm run build` on Node.js 20.9+.
 - See `SECURITY.md` for the full process, reviewed surfaces, and required hardening steps for adopters.
 
 ## 🚀 Getting Started
