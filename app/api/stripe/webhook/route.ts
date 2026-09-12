@@ -84,10 +84,9 @@ export const POST = withCors(async function POST(request: NextRequest) {
 
   try {
     logWebhookEvent('Received webhook request');
-    logWebhookEvent('Stripe signature', sig);
 
     const event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-    logWebhookEvent(`Event received: ${event.type}`, event.data.object);
+    logWebhookEvent(`Event received: ${event.type}`, { id: event.id });
     
     switch (event.type) {
       case 'checkout.session.completed': {

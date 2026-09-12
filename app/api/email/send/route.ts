@@ -10,6 +10,12 @@ import {
 } from '@/services/emailService';
 import { supabaseAdmin } from '@/utils/supabase-admin';
 
+const ALLOWED_EMAIL_TYPES: EmailType[] = [
+  'welcome',
+  'billing_confirmation',
+  'cancellation',
+];
+
 /**
  * Request body for sending an email.
  */
@@ -37,6 +43,13 @@ export async function POST(request: NextRequest) {
     const apiKey = request.headers.get('x-api-key');
     const expectedKey = process.env.INTERNAL_API_KEY || process.env.RESEND_API_KEY;
 
+    if (!expectedKey) {
+      return NextResponse.json(
+        { error: 'Email API key is not configured' },
+        { status: 500 }
+      );
+    }
+
     if (!apiKey || apiKey !== expectedKey) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -50,9 +63,9 @@ export async function POST(request: NextRequest) {
     let { to } = body;
 
     // Validate required fields - need either 'to' or 'userId'
-    if (!type || (!to && !userId)) {
+    if (!type || !ALLOWED_EMAIL_TYPES.includes(type) || (!to && !userId)) {
       return NextResponse.json(
-        { error: 'Missing required fields: type, and either to or userId' },
+        { error: 'Missing or invalid required fields: type, and either to or userId' },
         { status: 400 }
       );
     }
@@ -185,4 +198,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

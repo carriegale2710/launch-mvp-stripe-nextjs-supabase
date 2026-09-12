@@ -3,13 +3,17 @@ import type { NextRequest } from 'next/server';
 
 function getCorsHeaders(request: NextRequest) {
   const allowedOrigins = [
+    process.env.NEXT_PUBLIC_APP_URL,
     'http://localhost:3000',
-    "https://NextTemp.vercel.app"
-  ];
+    'http://localhost:8000',
+  ].filter((value): value is string => Boolean(value));
   const origin = request.headers.get('origin') || '';
+  const allowOrigin = allowedOrigins.includes(origin)
+    ? origin
+    : allowedOrigins[0] || 'http://localhost:3000';
   
   return {
-    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, stripe-signature, x-client-info',

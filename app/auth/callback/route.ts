@@ -6,6 +6,14 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+function getSafeRedirectPath(next: string | null) {
+  if (!next || !next.startsWith('/') || next.startsWith('//')) {
+    return '/dashboard';
+  }
+
+  return next;
+}
+
 export async function GET(request: Request) {
   console.log('AuthCallback: Processing callback');
   const requestUrl = new URL(request.url);
@@ -43,8 +51,9 @@ export async function GET(request: Request) {
 
     // Redirect to the next page if provided, otherwise go to home
     if (next) {
-      console.log('AuthCallback: Redirecting to:', next);
-      return NextResponse.redirect(new URL(next, requestUrl.origin));
+     const safeNext = getSafeRedirectPath(next);
+     console.log('AuthCallback: Redirecting to:', safeNext);
+     return NextResponse.redirect(new URL(safeNext, requestUrl.origin));
     }
 
     console.log('AuthCallback: Success, redirecting to home');

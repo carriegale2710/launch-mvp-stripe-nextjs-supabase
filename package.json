@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "security:deps": "npm audit --audit-level=high",
+    "security:secrets": "gitleaks detect --source . --no-banner --redact",
+    "security:check": "npm run lint && npm run build && npm run security:deps && npm run security:secrets"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.4",

@@ -8,8 +8,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const GET = withCors(async function GET(request: NextRequest) {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
     console.log('Testing Stripe connection...');
-    console.log('Stripe key starts with:', process.env.STRIPE_SECRET_KEY?.substring(0, 8) + '...');
     
     // Just verify the connection works
     await stripe.balance.retrieve();
@@ -17,8 +20,7 @@ export const GET = withCors(async function GET(request: NextRequest) {
     
     return NextResponse.json({ 
       status: 'success',
-      message: 'Stripe connection successful',
-      keyPrefix: process.env.STRIPE_SECRET_KEY?.substring(0, 8) + '...'
+      message: 'Stripe connection successful'
     });
   } catch (error) {
     console.error('Stripe test failed:', error);

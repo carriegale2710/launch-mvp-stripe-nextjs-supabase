@@ -8,10 +8,16 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 
 // Environment variables.
 // APP_URL should be set via: supabase secrets set APP_URL=https://my-full-stack-app-iota.vercel.app
-// @ts-ignore - Deno global is available in Edge Functions runtime
-const APP_URL = Deno.env.get("APP_URL") || "https://my-full-stack-app-iota.vercel.app";
-// @ts-ignore - Deno global is available in Edge Functions runtime  
-const INTERNAL_API_KEY = Deno.env.get("INTERNAL_API_KEY") || Deno.env.get("RESEND_API_KEY");
+function getRequiredEnv(name: string) {
+  // @ts-ignore - Deno global is available in Edge Functions runtime
+  const value = Deno.env.get(name);
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+
+  return value;
+}
 
 /**
  * Webhook payload structure from Supabase database trigger.
@@ -38,6 +44,9 @@ interface WebhookPayload {
 
 serve(async (req: Request) => {
   try {
+    const appUrl = getRequiredEnv('APP_URL');
+    const internalApiKey = getRequiredEnv('INTERNAL_API_KEY');
+
     // Parse the webhook payload from Supabase.
     const payload: WebhookPayload = await req.json();
     
@@ -67,11 +76,11 @@ serve(async (req: Request) => {
     }
 
     // Call the main app's email API to send the billing email.
-    const emailResponse = await fetch(`${APP_URL}/api/email/send`, {
+    const emailResponse = await fetch(`${appUrl}/api/email/send`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': INTERNAL_API_KEY || '',
+        'X-API-Key': internalApiKey,
       },
       body: JSON.stringify({
         type: 'billing_confirmation',
