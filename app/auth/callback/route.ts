@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 function getSafeRedirectPath(next: string | null) {
-  if (!next || !next.startsWith('/') || next.startsWith('//')) {
+  if (!next || !next.startsWith('/') || next.startsWith('//') || next.includes('\\')) {
     return '/dashboard';
   }
 
