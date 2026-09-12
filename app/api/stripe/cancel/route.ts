@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import Stripe from 'stripe';
 import { supabaseAdmin } from '@/utils/supabase-admin';
+import { getAuthenticatedUser } from '@/utils/supabase-server';
+import { getStripeClient } from '@/utils/stripe-server';
 import { withCors } from '@/utils/cors';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const POST = withCors(async function POST(request: NextRequest) {
   try {
+    const stripe = getStripeClient();
+    const user = await getAuthenticatedUser({ allowBearerToken: true });
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Get the subscription ID from the request body
     const { subscriptionId } = await request.json();
 
@@ -16,6 +22,27 @@ export const POST = withCors(async function POST(request: NextRequest) {
         { error: 'Subscription ID is required' },
         { status: 400 }
       );
+    }
+
+    const { data: storedSubscription, error: subscriptionLookupError } = await supabaseAdmin
+      .from('subscriptions')
+      .select('user_id')
+      .eq('stripe_subscription_id', subscriptionId)
+      .single();
+
+    if (subscriptionLookupError && subscriptionLookupError.code !== 'PGRST116') {
+      throw subscriptionLookupError;
+    }
+
+    if (!storedSubscription) {
+      return NextResponse.json(
+        { error: 'Subscription not found' },
+        { status: 404 }
+      );
+    }
+
+    if (storedSubscription.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // First, get the current subscription status

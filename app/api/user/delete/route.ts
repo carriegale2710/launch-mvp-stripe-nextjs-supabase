@@ -1,18 +1,28 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import Stripe from 'stripe';
 import { supabaseAdmin } from '@/utils/supabase-admin';
+import { getAuthenticatedUser } from '@/utils/supabase-server';
+import { getStripeClient } from '@/utils/stripe-server';
 import { withCors } from '@/utils/cors';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const DELETE = withCors(async function DELETE(request: NextRequest) {
   try {
+    const stripe = getStripeClient();
+    const user = await getAuthenticatedUser({ allowBearerToken: true });
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
+    if (userId !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     console.log('Starting account soft-deletion for user:', userId);

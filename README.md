@@ -3,7 +3,7 @@
 A production-ready Next.js template featuring authentication, dark mode support, Stripe integration, **automated email workflows with Resend**, and a clean, modern UI. Built with TypeScript and Tailwind CSS.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![Tailwind](https://img.shields.io/badge/Tailwind-3.0-38B2AC)
 
@@ -31,11 +31,19 @@ A production-ready Next.js template featuring authentication, dark mode support,
 - 🔍 SEO optimized
 - 🤖 MCP integration for AI-powered development
 
+## 🔒 Security Checks
+
+- Automated repository security checks run in GitHub Actions for pull requests, pushes, and on a weekly schedule.
+- The workflow covers dependency review, `npm audit`, CodeQL static analysis, and secret scanning.
+- Maintainers can run the local baseline with `npm run security:check` after installing `gitleaks`.
+- The current baseline is validated against the upgraded Next.js 16 / React 19 stack with `npm run build` on Node.js 20.9+.
+- See `SECURITY.md` for the full process, reviewed surfaces, and required hardening steps for adopters.
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 20.9+
 - npm or yarn
 - A Supabase account
 - A Stripe account

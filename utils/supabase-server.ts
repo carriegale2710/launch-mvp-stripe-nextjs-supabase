@@ -1,0 +1,59 @@
+import { createServerClient } from '@supabase/ssr';
+import { cookies, headers } from 'next/headers';
+
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+}
+
+interface GetAuthenticatedUserOptions {
+  allowBearerToken?: boolean;
+}
+
+export async function getAuthenticatedUser(options?: GetAuthenticatedUserOptions) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user: cookieUser },
+  } = await supabase.auth.getUser();
+
+  if (!options?.allowBearerToken) {
+    return cookieUser;
+  }
+
+  const requestHeaders = await headers();
+  const authToken = requestHeaders.get('authorization')?.replace(/^Bearer\s+/i, '') || undefined;
+
+  if (!authToken) {
+    return cookieUser;
+  }
+
+  const {
+    data: { user: tokenUser },
+  } = await supabase.auth.getUser(authToken);
+
+  if (!tokenUser) {
+    return null;
+  }
+
+  if (cookieUser && cookieUser.id !== tokenUser.id) {
+    return null;
+  }
+
+  return tokenUser;
+}

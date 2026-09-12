@@ -2,12 +2,19 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/utils/supabase-admin';
+import { getAuthenticatedUser } from '@/utils/supabase-server';
+import { getStripeClient } from '@/utils/stripe-server';
 import { withCors } from '@/utils/cors';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const POST = withCors(async function POST(request: NextRequest) {
   try {
+    const stripe = getStripeClient();
+    const user = await getAuthenticatedUser({ allowBearerToken: true });
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     console.log('Starting sync process...');
     const { subscriptionId } = await request.json();
     
@@ -49,6 +56,10 @@ export const POST = withCors(async function POST(request: NextRequest) {
         throw new Error('No user_id found in customer metadata');
       }
 
+      if (userId !== user.id) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
       // Create new subscription record
       const { error: insertError } = await supabaseAdmin
         .from('subscriptions')
@@ -69,6 +80,10 @@ export const POST = withCors(async function POST(request: NextRequest) {
         throw insertError;
       }
     } else {
+      if (existingSubscription.user_id !== user.id) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
       // Update existing subscription
       const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
       const { error: updateError } = await supabaseAdmin

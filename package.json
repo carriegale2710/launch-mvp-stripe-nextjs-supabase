@@ -4,15 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "security:lint": "eslint app/api app/auth/callback/route.ts utils/cors.ts utils/supabase.ts utils/supabase-admin.ts utils/supabase-server.ts utils/stripe-server.ts supabase/functions app/layout.tsx next.config.js eslint.config.mjs",
+    "security:deps": "npm audit --omit=dev --audit-level=high",
+    "security:secrets": "gitleaks detect --source . --no-banner --redact",
+    "security:check": "npm run security:lint && npm run build && npm run security:deps && npm run security:secrets"
+  },
+  "overrides": {
+    "ws": "^8.21.3"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.4",
     "@headlessui/react": "^2.2.0",
     "@react-email/components": "^1.0.6",
-    "@stripe/mcp": "^0.3.3",
     "@stripe/stripe-js": "^5.5.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.47.10",
@@ -24,26 +30,27 @@
     "lucide-react": "^0.475.0",
     "next": "^16.3.5",
     "posthog-js": "^1.219.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "react-error-boundary": "^5.0.0",
     "react-icons": "^5.4.0",
     "react-intersection-observer": "^9.15.1",
     "react-scroll": "^1.9.2",
     "resend": "^6.28.0",
-    "stripe": "^17.5.0"
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
+    "@eslint/eslintrc": "^3.3.7",
+    "@stripe/mcp": "^0.3.3",
     "@supabase/mcp-server-supabase": "^0.3.4",
     "@types/lodash": "^4.17.25",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@types/react-scroll": "^1.8.10",
-    "eslint": "^9",
-    "eslint-config-next": "15.1.3",
-    "postcss": "^8",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.5",
+    "postcss": "^8.5.28",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

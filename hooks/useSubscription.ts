@@ -17,7 +17,7 @@ export interface Subscription {
 }
 
 export function useSubscription() {
-  const { user, supabase } = useAuth();
+  const { user, session, supabase } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,7 +99,10 @@ export function useSubscription() {
       try {
         const response = await fetch('/api/stripe/sync', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session?.access_token ? { Authorization: 'Bearer ' + session.access_token } : {}),
+          },
           body: JSON.stringify({ subscriptionId }),
         });
         
@@ -116,7 +119,7 @@ export function useSubscription() {
         setSyncRetries(prev => prev + 1);
       }
     }, 30000), // 30 second delay between calls
-    [fetchSubscription, syncRetries]
+    [fetchSubscription, session?.access_token, syncRetries]
   );
 
   const syncWithStripe = useCallback((subscriptionId: string) => {
