@@ -143,12 +143,20 @@ async function checkExistingSubscription(customerId: string): Promise<boolean> {
 
 export const POST = withCors(async function POST(request: NextRequest) {
   const body = await request.text();
-  const sig = request.headers.get('stripe-signature')!;
+  const sig = request.headers.get('stripe-signature');
   const stripe = getStripeClient();
   const webhookSecret = getStripeWebhookSecret();
 
   try {
     logWebhookEvent('Received webhook request');
+
+    if (!sig) {
+      logWebhookEvent('Missing stripe-signature header');
+      return NextResponse.json(
+        { error: 'Missing stripe-signature header' },
+        { status: 400 }
+      );
+    }
 
     const event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
     logWebhookEvent(`Event received: ${event.type}`, { id: event.id });
