@@ -3,13 +3,13 @@
 // Triggered by database webhook when new subscription is created.
 // Calls the main app's email API to send billing confirmation email.
 
-// @ts-ignore - Deno imports are valid in Supabase Edge Functions runtime
+// @ts-expect-error - Deno imports are valid in Supabase Edge Functions runtime
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 
 // Environment variables.
 // APP_URL should be set via: supabase secrets set APP_URL=https://my-full-stack-app-iota.vercel.app
 function getRequiredEnv(name: string) {
-  // @ts-ignore - Deno global is available in Edge Functions runtime
+  // @ts-expect-error - Deno global is available in Edge Functions runtime
   const value = Deno.env.get(name);
 
   if (!value) {
@@ -60,7 +60,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const { user_id, tier, stripe_subscription_id, current_period_end } = payload.record;
+    const { user_id, tier, current_period_end } = payload.record;
     
     console.log(`[BillingEmail] Sending billing confirmation email for user: ${user_id}, tier: ${tier}`);
 

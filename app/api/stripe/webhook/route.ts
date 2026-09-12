@@ -3,9 +3,7 @@ import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/utils/supabase-admin';
 import { withCors } from '@/utils/cors';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+import { getStripeClient, getStripeWebhookSecret } from '@/utils/stripe-server';
 
 // Helper function for consistent logging
 function logWebhookEvent(message: string, data?: unknown) {
@@ -81,6 +79,8 @@ async function checkExistingSubscription(customerId: string): Promise<boolean> {
 export const POST = withCors(async function POST(request: NextRequest) {
   const body = await request.text();
   const sig = request.headers.get('stripe-signature')!;
+  const stripe = getStripeClient();
+  const webhookSecret = getStripeWebhookSecret();
 
   try {
     logWebhookEvent('Received webhook request');
@@ -229,6 +229,7 @@ export const POST = withCors(async function POST(request: NextRequest) {
 });
 
 async function createSubscription(subscriptionId: string, userId: string, customerId: string) {
+  const stripe = getStripeClient();
   logWebhookEvent('Starting createSubscription', { subscriptionId, userId, customerId });
 
   try {

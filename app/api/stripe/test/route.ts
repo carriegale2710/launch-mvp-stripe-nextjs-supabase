@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import Stripe from 'stripe';
+import { getStripeClient } from '@/utils/stripe-server';
 import { withCors } from '@/utils/cors';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const GET = withCors(async function GET(request: NextRequest) {
   try {
+    const stripe = getStripeClient();
     if (process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }

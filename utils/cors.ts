@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+type CorsHandler = (request: NextRequest) => Promise<Response>;
+
 function getCorsHeaders(request: NextRequest) {
   const allowedOrigins = [
     process.env.NEXT_PUBLIC_APP_URL,
@@ -21,7 +23,7 @@ function getCorsHeaders(request: NextRequest) {
   };
 }
 
-export function withCors(handler: Function) {
+export function withCors(handler: CorsHandler) {
   return async function corsHandler(request: NextRequest) {
     // Handle preflight requests
     if (request.method === 'OPTIONS') {

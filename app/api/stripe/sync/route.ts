@@ -3,12 +3,12 @@ import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/utils/supabase-admin';
 import { getAuthenticatedUser } from '@/utils/supabase-server';
+import { getStripeClient } from '@/utils/stripe-server';
 import { withCors } from '@/utils/cors';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const POST = withCors(async function POST(request: NextRequest) {
   try {
+    const stripe = getStripeClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -81,7 +81,7 @@ export const POST = withCors(async function POST(request: NextRequest) {
       }
     } else {
       if (existingSubscription.user_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
 
       // Update existing subscription

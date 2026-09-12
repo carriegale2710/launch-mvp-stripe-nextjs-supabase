@@ -3,13 +3,13 @@
 // Triggered by database webhook when subscription status changes to cancelled.
 // Calls the main app's email API to send cancellation confirmation email.
 
-// @ts-ignore - Deno imports are valid in Supabase Edge Functions runtime
+// @ts-expect-error - Deno imports are valid in Supabase Edge Functions runtime
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 
 // Environment variables.
 // APP_URL should be set via: supabase secrets set APP_URL=https://my-full-stack-app-iota.vercel.app
 function getRequiredEnv(name: string) {
-  // @ts-ignore - Deno global is available in Edge Functions runtime
+  // @ts-expect-error - Deno global is available in Edge Functions runtime
   const value = Deno.env.get(name);
 
   if (!value) {

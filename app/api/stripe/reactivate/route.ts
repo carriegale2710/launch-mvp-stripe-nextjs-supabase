@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import Stripe from 'stripe';
 import { supabaseAdmin } from '@/utils/supabase-admin';
 import { getAuthenticatedUser } from '@/utils/supabase-server';
+import { getStripeClient } from '@/utils/stripe-server';
 import { withCors } from '@/utils/cors';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const POST = withCors(async function POST(request: NextRequest) {
   try {
+    const stripe = getStripeClient();
     const user = await getAuthenticatedUser();
 
     if (!user) {

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // ... your existing config ...
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     config.ignoreWarnings = [
       { module: /node_modules\/punycode/ }
     ];
