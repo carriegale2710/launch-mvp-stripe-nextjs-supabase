@@ -26,18 +26,18 @@ If `gitleaks` is not installed yet, install it first through your preferred pack
 
 The current review baseline focuses on:
 
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/api/email/send/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/api/stripe/cancel/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/api/stripe/reactivate/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/api/stripe/sync/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/api/stripe/test/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/api/stripe/webhook/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/api/user/delete/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/app/auth/callback/route.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/utils/supabase-admin.ts`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/supabase/functions/*`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/supabase/scripts/setup/*.sql`
-- `/home/runner/work/launch-mvp-stripe-nextjs-supabase/launch-mvp-stripe-nextjs-supabase/initial_supabase_table_schema.sql`
+- `app/api/email/send/route.ts`
+- `app/api/stripe/cancel/route.ts`
+- `app/api/stripe/reactivate/route.ts`
+- `app/api/stripe/sync/route.ts`
+- `app/api/stripe/test/route.ts`
+- `app/api/stripe/webhook/route.ts`
+- `app/api/user/delete/route.ts`
+- `app/auth/callback/route.ts`
+- `utils/supabase-admin.ts`
+- `supabase/functions/*`
+- `supabase/scripts/setup/*.sql`
+- `initial_supabase_table_schema.sql`
 
 ## Protections already present
 

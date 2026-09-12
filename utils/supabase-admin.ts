@@ -1,9 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseServiceRoleKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key';
+let supabaseAdminClient: SupabaseClient | null = null;
 
 export function validateSupabaseAdminEnv() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -15,20 +12,35 @@ export function validateSupabaseAdminEnv() {
   }
 }
 
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  supabaseServiceRoleKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      detectSessionInUrl: false
-    },
-    global: {
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': supabaseServiceRoleKey,
+function getSupabaseAdminClient() {
+  validateSupabaseAdminEnv();
+
+  if (!supabaseAdminClient) {
+    supabaseAdminClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false
+        },
+        global: {
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          }
+        }
       }
-    }
+    );
   }
-); 
+
+  return supabaseAdminClient;
+}
+
+export const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get(_target, prop, receiver) {
+    const client = getSupabaseAdminClient();
+    return Reflect.get(client, prop, receiver);
+  },
+});
