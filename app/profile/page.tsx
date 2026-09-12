@@ -15,7 +15,7 @@ import { useTrialStatus } from '@/hooks/useTrialStatus';
 // import { StripeBuyButton } from '@/components/StripeBuyButton';
 
 function ProfileContent() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { subscription, isLoading: isLoadingSubscription, syncWithStripe, fetchSubscription } = useSubscription();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -98,7 +98,10 @@ function ProfileContent() {
     try {
       const response = await fetch('/api/stripe/cancel', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: 'Bearer ' + session.access_token } : {}),
+        },
         body: JSON.stringify({ 
           subscriptionId: subscription.stripe_subscription_id 
         }),
@@ -121,7 +124,10 @@ function ProfileContent() {
     try {
       const response = await fetch('/api/stripe/reactivate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: 'Bearer ' + session.access_token } : {}),
+        },
         body: JSON.stringify({ 
           subscriptionId: subscription.stripe_subscription_id 
         }),

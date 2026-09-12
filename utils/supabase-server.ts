@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
@@ -24,9 +24,11 @@ export async function createSupabaseServerClient() {
 
 export async function getAuthenticatedUser() {
   const supabase = await createSupabaseServerClient();
+  const requestHeaders = await headers();
+  const authToken = requestHeaders.get('authorization')?.replace(/^Bearer\s+/i, '') || undefined;
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = authToken ? await supabase.auth.getUser(authToken) : await supabase.auth.getUser();
 
   return user;
 }
