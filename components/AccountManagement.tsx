@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export function AccountManagement() {
-  const { user, signOut } = useAuth();
+  const { user, session, signOut } = useAuth();
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [error, setError] = useState('');
@@ -21,6 +21,9 @@ export function AccountManagement() {
     try {
       const response = await fetch(`/api/user/delete?userId=${user.id}`, {
         method: 'DELETE',
+        headers: {
+          ...(session?.access_token ? { Authorization: 'Bearer ' + session.access_token } : {}),
+        },
       });
       
       if (!response.ok) {

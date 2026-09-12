@@ -8,7 +8,7 @@ import { withCors } from '@/utils/cors';
 export const DELETE = withCors(async function DELETE(request: NextRequest) {
   try {
     const stripe = getStripeClient();
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedUser({ allowBearerToken: true });
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

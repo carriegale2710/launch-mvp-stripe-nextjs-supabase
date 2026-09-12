@@ -32,35 +32,28 @@ export async function getAuthenticatedUser(options?: GetAuthenticatedUserOptions
     data: { user: cookieUser },
   } = await supabase.auth.getUser();
 
-  if (cookieUser) {
+  if (!options?.allowBearerToken) {
     return cookieUser;
   }
 
-  if (!options?.allowBearerToken) {
-    return null;
-  }
-
   const requestHeaders = await headers();
-  const requestOrigin = requestHeaders.get('origin');
-  const allowedOrigins = [
-    process.env.NEXT_PUBLIC_APP_URL,
-    'http://localhost:3000',
-    'http://localhost:8000',
-  ].filter((value): value is string => Boolean(value));
-
-  if (requestOrigin && !allowedOrigins.includes(requestOrigin)) {
-    return null;
-  }
-
   const authToken = requestHeaders.get('authorization')?.replace(/^Bearer\s+/i, '') || undefined;
 
   if (!authToken) {
-    return null;
+    return cookieUser;
   }
 
   const {
-    data: { user },
+    data: { user: tokenUser },
   } = await supabase.auth.getUser(authToken);
 
-  return user;
+  if (!tokenUser) {
+    return null;
+  }
+
+  if (cookieUser && cookieUser.id !== tokenUser.id) {
+    return null;
+  }
+
+  return tokenUser;
 }
