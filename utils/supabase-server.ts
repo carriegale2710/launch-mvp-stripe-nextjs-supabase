@@ -24,11 +24,24 @@ export async function createSupabaseServerClient() {
 
 export async function getAuthenticatedUser() {
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user: cookieUser },
+  } = await supabase.auth.getUser();
+
+  if (cookieUser) {
+    return cookieUser;
+  }
+
   const requestHeaders = await headers();
   const authToken = requestHeaders.get('authorization')?.replace(/^Bearer\s+/i, '') || undefined;
+
+  if (!authToken) {
+    return null;
+  }
+
   const {
     data: { user },
-  } = authToken ? await supabase.auth.getUser(authToken) : await supabase.auth.getUser();
+  } = await supabase.auth.getUser(authToken);
 
   return user;
 }
