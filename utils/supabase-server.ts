@@ -22,7 +22,11 @@ export async function createSupabaseServerClient() {
   );
 }
 
-export async function getAuthenticatedUser() {
+interface GetAuthenticatedUserOptions {
+  allowBearerToken?: boolean;
+}
+
+export async function getAuthenticatedUser(options?: GetAuthenticatedUserOptions) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user: cookieUser },
@@ -30,6 +34,10 @@ export async function getAuthenticatedUser() {
 
   if (cookieUser) {
     return cookieUser;
+  }
+
+  if (!options?.allowBearerToken) {
+    return null;
   }
 
   const requestHeaders = await headers();
