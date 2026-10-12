@@ -23,6 +23,13 @@ export default defineConfig({
         'utils/stripe-server.ts',
         'utils/supabase-server.ts',
       ],
+      thresholds: {
+        perFile: true,
+        statements: 80,
+        branches: 70,
+        functions: 85,
+        lines: 80,
+      },
     },
   },
 });
