@@ -608,3 +608,15 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 ---
 
 Made with 🔥 by [ShenSeanChen](https://github.com/ShenSeanChen)
+
+## Testing
+
+Unit, route-handler, hook, and context tests run with [Vitest](https://vitest.dev) and React Testing Library. External services (Supabase, Stripe, Resend) are mocked, so no credentials are needed.
+
+```bash
+npm test               # run all tests once
+npm run test:watch     # watch mode
+npm run test:coverage  # run with coverage report
+```
+
+Tests live in `tests/`. No browser (Playwright) suite is included yet.
