@@ -125,21 +125,45 @@ describe('POST /api/stripe/webhook', () => {
     expect(from).not.toHaveBeenCalled();
   });
 
-  it.each(['customer.subscription.updated', 'customer.subscription.deleted'])(
-    '%s syncs status to the DB',
-    async (type) => {
-      const update = queryBuilder();
-      from.mockImplementation(fromByTable({ subscriptions: [update] }));
-      event(type, sub({ status: type.endsWith('deleted') ? 'canceled' : 'past_due', cancel_at_period_end: true }));
+  it('customer.subscription.updated syncs the values supplied by Stripe', async () => {
+    const update = queryBuilder();
+    from.mockImplementation(fromByTable({ subscriptions: [update] }));
+    event('customer.subscription.updated', sub({ status: 'past_due', cancel_at_period_end: true }));
+    expect((await hook()).status).toBe(200);
+    expect(update.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'past_due',
+        cancel_at_period_end: true,
+        current_period_end: new Date(PERIOD_END * 1000).toISOString(),
+      })
+    );
+    expect(update.eq).toHaveBeenCalledWith('stripe_subscription_id', 'sub_1');
+  });
+
+  it('customer.subscription.deleted clears cancellation and syncs the deletion time', async () => {
+    const deletionTime = new Date('2025-01-02T03:04:05.000Z');
+    const update = queryBuilder();
+    from.mockImplementation(fromByTable({ subscriptions: [update] }));
+    event(
+      'customer.subscription.deleted',
+      sub({ status: 'canceled', cancel_at_period_end: true })
+    );
+
+    vi.useFakeTimers();
+    vi.setSystemTime(deletionTime);
+    try {
       expect((await hook()).status).toBe(200);
       expect(update.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: type.endsWith('deleted') ? 'canceled' : 'past_due',
-          cancel_at_period_end: true,
-          current_period_end: new Date(PERIOD_END * 1000).toISOString(),
+          status: 'canceled',
+          cancel_at_period_end: false,
+          current_period_end: deletionTime.toISOString(),
         })
       );
-      expect(update.eq).toHaveBeenCalledWith('stripe_subscription_id', 'sub_1');
+    } finally {
+      vi.useRealTimers();
     }
-  );
+
+    expect(update.eq).toHaveBeenCalledWith('stripe_subscription_id', 'sub_1');
+  });
 });
