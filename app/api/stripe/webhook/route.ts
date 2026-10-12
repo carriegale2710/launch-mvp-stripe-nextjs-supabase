@@ -242,7 +242,6 @@ export const POST = withCors(async function POST(request: NextRequest) {
       }
 
       case 'customer.subscription.updated':
-      case 'customer.subscription.deleted':
       case 'customer.subscription.pending_update_applied':
       case 'customer.subscription.pending_update_expired':
       case 'customer.subscription.trial_will_end': {
